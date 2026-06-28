@@ -191,14 +191,14 @@ svg{display:inline-block;vertical-align:middle}
                   <input type="radio" v-model="store.absenceType" value="continuous" class="w-4 h-4 text-blue-600 shrink-0" />
                   <div class="flex flex-col">
                     <span class="text-xs font-bold text-slate-800">غياب متصل</span>
-                    <span class="text-[10px] text-slate-500">حد قانوني 9 أيام</span>
+                    <span class="text-[10px] text-slate-500">حد قانوني 7 أيام</span>
                   </div>
                 </label>
                 <label :class="store.absenceType === 'intermittent' ? 'border-blue-500 bg-blue-50/60 ring-1 ring-blue-400/30' : 'border-slate-200 hover:bg-slate-50'" class="flex items-center gap-2.5 p-3 border rounded-xl cursor-pointer transition-all">
                   <input type="radio" v-model="store.absenceType" value="intermittent" class="w-4 h-4 text-blue-600 shrink-0" />
                   <div class="flex flex-col">
                     <span class="text-xs font-bold text-slate-800">غياب منقطع</span>
-                    <span class="text-[10px] text-slate-500">حد قانوني 19 يوماً</span>
+                    <span class="text-[10px] text-slate-500">حد قانوني 15 يوماً</span>
                   </div>
                 </label>
               </div>
