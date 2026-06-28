@@ -126,8 +126,8 @@ export const useAbsenceStore = defineStore('absence', () => {
 
   const isVoid = computed(() => {
     const days = absenceDaysCount.value
-    if (absenceType.value === 'continuous') return days >= 10
-    return days >= 20
+    if (absenceType.value === 'continuous') return days >= 8
+    return days >= 16
   })
 
   const excuseDeadline = computed(() => {

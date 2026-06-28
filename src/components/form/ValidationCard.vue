@@ -12,7 +12,7 @@ const cardConfig = computed(() => {
       return {
         cls: 'bg-red-50 text-red-700 border-red-200',
         icon: 'bg-red-600 animate-bounce',
-        msg: `❌ هذا الخطاب باطل قانوناً! تجاوز التوقيت المسموح لإخطار الانقطاع ${store.absenceType === 'continuous' ? 'المتواصل (يرسل في اليوم 8 أو 9)' : 'المتفرق (يرسل من اليوم 16 حتى 19)'}.`,
+        msg: `❌ هذا الخطاب باطل قانوناً! تجاوز التوقيت المسموح لإخطار الانقطاع ${store.absenceType === 'continuous' ? 'المتواصل (يرسل في اليوم 6 أو 7)' : 'المتفرق (يرسل من اليوم 14 حتى 15)'}.`,
       }
     case 'expired':
       return {

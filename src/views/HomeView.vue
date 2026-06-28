@@ -230,8 +230,8 @@ svg{display:inline-block;vertical-align:middle}
             المرجع القانوني — المادة (121)
           </h4>
           <ul class="space-y-2.5 text-[11px] text-slate-400 leading-relaxed">
-            <li class="flex items-start gap-1.5"><span class="text-blue-400 shrink-0">•</span><span><strong class="text-slate-300">متواصل:</strong> يُوجَّه الإنذار في اليوم 7–9. من اليوم العاشر = باطل.</span></li>
-            <li class="flex items-start gap-1.5"><span class="text-blue-400 shrink-0">•</span><span><strong class="text-slate-300">متفرق:</strong> يُوجَّه من اليوم 15–19. من اليوم العشرين = باطل.</span></li>
+            <li class="flex items-start gap-1.5"><span class="text-blue-400 shrink-0">•</span><span><strong class="text-slate-300">متواصل:</strong> يُوجَّه الإنذار في اليوم 6–7. من اليوم الثامن = باطل.</span></li>
+            <li class="flex items-start gap-1.5"><span class="text-blue-400 shrink-0">•</span><span><strong class="text-slate-300">متفرق:</strong> يُوجَّه من اليوم 14–15. من اليوم السادس عشر = باطل.</span></li>
             <li class="flex items-start gap-1.5"><span class="text-blue-400 shrink-0">•</span><span><strong class="text-slate-300">مهلة العذر:</strong> 15 يوماً من اليوم التالي لاكتمال الأيام.</span></li>
           </ul>
         </div>
