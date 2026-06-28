@@ -1,0 +1,16 @@
+@import 'tailwindcss';
+
+@layer base {
+  * { box-sizing: border-box; }
+  html { font-family: 'Cairo', sans-serif; }
+  body { direction: rtl; }
+}
+
+/* Print utilities */
+@media print {
+  .no-print { display: none !important; }
+  body { background: white !important; }
+}
+
+@page { size: A4 portrait; margin: 15mm; }
+@page landscape { size: A4 landscape; margin: 10mm; }
