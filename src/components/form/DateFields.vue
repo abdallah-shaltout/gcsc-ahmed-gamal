@@ -7,46 +7,50 @@ const store = useAbsenceStore()
 const { formatArabicDate } = useArabicDate()
 
 const excuseDeadlineDisplay = computed(() => formatArabicDate(store.excuseDeadline))
+
+const sendDateBorderClass = computed(() => {
+  if (!store.endDate || !store.sendDate || store.absenceType !== 'continuous') return 'border-slate-300'
+  return store.sendDateValid ? 'border-slate-300' : 'border-red-400'
+})
 </script>
 
 <template>
   <div class="space-y-3.5">
 
-    <!-- بداية الانقطاع + نهاية/عدد الأيام -->
-    <div class="grid grid-cols-2 gap-3">
+    <!-- متصل: بداية + نهاية -->
+    <div v-if="store.absenceType === 'continuous'" class="grid grid-cols-2 gap-3">
       <div>
         <label class="block text-[11px] font-bold text-slate-700 mb-1">بداية الانقطاع</label>
         <input type="date" v-model="store.startDate"
           class="w-full p-2.5 border border-slate-300 rounded-xl bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-xs font-medium" />
       </div>
-
-      <!-- نهاية الانقطاع — متصل فقط -->
-      <div v-if="store.absenceType === 'continuous'">
+      <div>
         <label class="block text-[11px] font-bold text-slate-700 mb-1">نهاية الانقطاع</label>
         <input type="date" v-model="store.endDate"
           class="w-full p-2.5 border border-slate-300 rounded-xl bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-xs font-medium" />
       </div>
-
-      <!-- عدد الأيام — منقطع فقط -->
-      <div v-else>
-        <label class="block text-[11px] font-bold text-slate-700 mb-1">عدد أيام الغياب</label>
-        <input type="number" v-model.number="store.absenceDays" min="1" placeholder="عدد الأيام"
-          class="w-full p-2.5 border border-slate-300 rounded-xl bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-xs font-medium" />
-      </div>
     </div>
 
-    <!-- تاريخ التحرير + الإرسال -->
-    <div class="grid grid-cols-2 gap-3">
-      <div>
-        <label class="block text-[11px] font-bold text-slate-700 mb-1">تاريخ التحرير</label>
-        <input type="date" v-model="store.draftDate"
-          class="w-full p-2.5 border border-slate-300 rounded-xl bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-xs font-medium" />
-      </div>
-      <div>
-        <label class="block text-[11px] font-bold text-slate-700 mb-1">تاريخ الإرسال</label>
-        <input type="date" v-model="store.sendDate"
-          class="w-full p-2.5 border border-slate-300 rounded-xl bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-xs font-medium" />
-      </div>
+    <!-- منقطع: عدد الأيام فقط -->
+    <div v-else>
+      <label class="block text-[11px] font-bold text-slate-700 mb-1">عدد أيام الغياب</label>
+      <input type="number" v-model.number="store.absenceDays" min="1" placeholder="عدد الأيام"
+        class="w-full p-2.5 border border-slate-300 rounded-xl bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-xs font-medium" />
+    </div>
+
+    <!-- تاريخ الإرسال -->
+    <div>
+      <label class="block text-[11px] font-bold text-slate-700 mb-1">
+        تاريخ الإرسال
+        <span v-if="store.absenceType === 'continuous' && store.endDate" class="text-[10px] font-normal text-slate-500 mr-2">
+          — يجب أن يكون خلال 3 أيام من نهاية الانقطاع
+        </span>
+      </label>
+      <input type="date" v-model="store.sendDate"
+        :class="[sendDateBorderClass, 'w-full p-2.5 rounded-xl bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-xs font-medium border']" />
+      <p v-if="store.absenceType === 'continuous' && store.endDate && !store.sendDateValid" class="text-[10px] text-red-500 font-semibold mt-1">
+        ⚠️ تاريخ الإرسال خارج النافذة المسموحة (نهاية الانقطاع + يومان فقط)
+      </p>
     </div>
 
     <!-- تاريخ اتمام مدة موجبة -->
@@ -56,16 +60,12 @@ const excuseDeadlineDisplay = computed(() => formatArabicDate(store.excuseDeadli
         class="w-full p-2.5 border border-slate-300 rounded-xl bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-xs font-medium" />
     </div>
 
-    <!-- مهلة تقديم العذر -->
-    <div>
-      <label class="block text-[11px] font-bold text-slate-700 mb-1">
-        مهلة تقديم العذر (بالأيام)
-        <span v-if="store.excuseDeadline" class="text-[10px] font-normal text-slate-500 mr-2">
-          — ينتهي في: {{ excuseDeadlineDisplay }}
-        </span>
-      </label>
-      <input type="number" v-model.number="store.excusePeriod" min="1"
-        class="w-full p-2.5 border border-slate-300 rounded-xl bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-xs font-medium" />
+    <!-- مهلة تقديم العذر — عرض فقط، محسوبة من بداية الانقطاع + 25 -->
+    <div v-if="store.excuseDeadline" class="bg-blue-50 border border-blue-200 rounded-xl p-3 flex items-center justify-between">
+      <span class="text-[11px] font-bold text-blue-800">مهلة تقديم العذر (25 يوم من البداية)</span>
+      <span class="text-[11px] font-extrabold text-blue-700 bg-white px-2.5 py-1 rounded-lg border border-blue-200">
+        {{ excuseDeadlineDisplay }}
+      </span>
     </div>
 
     <!-- الموقف الحالي للعمل -->

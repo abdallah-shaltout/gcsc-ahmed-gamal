@@ -32,27 +32,26 @@ function loadScenario(type: string) {
   if (type === 'valid_continuous') {
     store.absenceType = 'continuous'
     store.startDate = ago(8); store.endDate = ago(1)
-    store.draftDate = todayStr; store.sendDate = todayStr
+    store.sendDate = todayStr
     store.legalPeriodExpired = false; store.currentStatus = 'committed'
     store.setEmployee('1')
   } else if (type === 'void_continuous') {
     store.absenceType = 'continuous'
     store.startDate = ago(12); store.endDate = ago(1)
-    store.draftDate = todayStr; store.sendDate = todayStr
+    store.sendDate = todayStr
     store.legalPeriodExpired = false; store.currentStatus = 'committed'
     store.setEmployee('2')
   } else if (type === 'legal_expired') {
     store.absenceType = 'continuous'
     store.startDate = ago(25); store.endDate = ago(14)
-    store.draftDate = ago(14); store.sendDate = ago(14)
+    store.sendDate = ago(14)
     store.legalPeriodExpired = true; store.currentStatus = 'absent'
     store.currentAbsenceDate = todayStr
     store.setEmployee('3')
   } else if (type === 'valid_intermittent') {
     store.absenceType = 'intermittent'
-    store.startDate = ago(30)
     store.absenceDays = 17
-    store.draftDate = todayStr; store.sendDate = todayStr
+    store.sendDate = todayStr
     store.legalPeriodExpired = false; store.currentStatus = 'committed'
     store.setEmployee('4')
   }
@@ -230,9 +229,9 @@ svg{display:inline-block;vertical-align:middle}
             المرجع القانوني — المادة (121)
           </h4>
           <ul class="space-y-2.5 text-[11px] text-slate-400 leading-relaxed">
-            <li class="flex items-start gap-1.5"><span class="text-blue-400 shrink-0">•</span><span><strong class="text-slate-300">متواصل:</strong> يُوجَّه الإنذار في اليوم 6–7. من اليوم الثامن = باطل.</span></li>
-            <li class="flex items-start gap-1.5"><span class="text-blue-400 shrink-0">•</span><span><strong class="text-slate-300">متفرق:</strong> يُوجَّه من اليوم 14–15. من اليوم السادس عشر = باطل.</span></li>
-            <li class="flex items-start gap-1.5"><span class="text-blue-400 shrink-0">•</span><span><strong class="text-slate-300">مهلة العذر:</strong> 15 يوماً من اليوم التالي لاكتمال الأيام.</span></li>
+            <li class="flex items-start gap-1.5"><span class="text-blue-400 shrink-0">•</span><span><strong class="text-slate-300">متواصل:</strong> الحد الأدنى 7 أيام. يُرسل الإنذار خلال 3 أيام من نهاية الانقطاع. ما بعد ذلك = باطل.</span></li>
+            <li class="flex items-start gap-1.5"><span class="text-blue-400 shrink-0">•</span><span><strong class="text-slate-300">متفرق:</strong> الحد الأدنى 16 يوماً. من اليوم السادس عشر فصاعداً = باطل.</span></li>
+            <li class="flex items-start gap-1.5"><span class="text-blue-400 shrink-0">•</span><span><strong class="text-slate-300">مهلة العذر:</strong> 25 يوماً من تاريخ بداية الانقطاع.</span></li>
           </ul>
         </div>
       </div>
