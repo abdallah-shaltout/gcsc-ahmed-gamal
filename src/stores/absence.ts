@@ -153,7 +153,7 @@ export const useAbsenceStore = defineStore('absence', () => {
   const excuseDeadline = computed(() => {
     if (!startDate.value) return ''
     const d = new Date(startDate.value)
-    d.setDate(d.getDate() + 25)
+    d.setDate(d.getDate() + 24)
     return d.toISOString().split('T')[0]
   })
 
