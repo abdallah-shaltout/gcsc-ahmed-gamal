@@ -11,7 +11,11 @@ const { formatArabicDate } = useArabicDate()
 const pickerDate = ref<Date | null>(null)
 
 function toIso(d: Date | null): string {
-  return d ? d.toISOString().slice(0, 10) : ''
+  if (!d) return ''
+  const y = d.getFullYear()
+  const m = d.getMonth() + 1
+  const day = d.getDate()
+  return `${y}-${String(m).padStart(2, '0')}-${String(day).padStart(2, '0')}`
 }
 
 function handleAdd() {

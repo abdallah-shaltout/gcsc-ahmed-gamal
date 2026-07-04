@@ -10,7 +10,12 @@ import Chip from 'primevue/chip'
 
 const store = useAbsenceStore()
 const holidaysStore = useHolidaysStore()
-const disabledHolidayDates = computed(() => holidaysStore.holidays.map((d) => new Date(d)))
+const disabledHolidayDates = computed(() =>
+  holidaysStore.holidays.map((d) => {
+    const parts = d.split('-').map(Number)
+    return new Date(parts[0] ?? 0, (parts[1] ?? 1) - 1, parts[2] ?? 1)
+  })
+)
 const { formatArabicDate } = useArabicDate()
 
 const excuseDeadlineDisplay = computed(() => formatArabicDate(store.excuseDeadline))
@@ -23,10 +28,16 @@ const sendDateInvalid = computed(() => {
 // ISO string (YYYY-MM-DD) <-> Date object bridges for DatePicker, since the
 // store keeps plain date strings for all downstream day-count calculations.
 function toDate(iso: string): Date | null {
-  return iso ? new Date(iso) : null
+  if (!iso) return null
+  const parts = iso.split('-').map(Number)
+  return new Date(parts[0] ?? 0, (parts[1] ?? 1) - 1, parts[2] ?? 1)
 }
 function toIso(d: Date | null): string {
-  return d ? d.toISOString().slice(0, 10) : ''
+  if (!d) return ''
+  const y = d.getFullYear()
+  const m = d.getMonth() + 1
+  const day = d.getDate()
+  return `${y}-${String(m).padStart(2, '0')}-${String(day).padStart(2, '0')}`
 }
 
 const startDateModel = computed<Date | null>({
