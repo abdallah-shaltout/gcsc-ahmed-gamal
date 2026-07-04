@@ -31,6 +31,9 @@ const router = useRouter()
         <RouterLink to="/minutes" class="px-3 py-1.5 rounded-lg text-xs font-bold text-white/70 hover:text-white hover:bg-white/10 transition-all">
           المحضر
         </RouterLink>
+        <RouterLink to="/holidays" class="px-3 py-1.5 rounded-lg text-xs font-bold text-white/70 hover:text-white hover:bg-white/10 transition-all">
+          العطلات الرسمية
+        </RouterLink>
         <span class="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 mr-2">
           <span class="w-2 h-2 bg-emerald-400 rounded-full ml-1.5 animate-pulse"></span>
           v3.0

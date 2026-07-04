@@ -8,6 +8,7 @@ const router = createRouter({
     { path: '/committee', name: 'committee', component: () => import('../views/CommitteeView.vue') },
     { path: '/minutes', name: 'minutes', component: () => import('../views/MinutesView.vue') },
     { path: '/documents', name: 'documents', component: () => import('../views/DocumentsView.vue') },
+    { path: '/holidays', name: 'holidays', component: () => import('../views/HolidaysView.vue') },
   ],
 })
 
