@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { useAbsenceStore } from '@/stores/absence'
 import { useArabicDate } from '@/composables/useArabicDate'
+import Message from 'primevue/message'
 
 const store = useAbsenceStore()
 const { formatArabicDate } = useArabicDate()
@@ -10,7 +11,7 @@ const cardConfig = computed(() => {
   switch (store.validationStatus) {
     case 'not_valid':
       return {
-        cls: 'bg-yellow-50 text-yellow-800 border-yellow-300',
+        severity: 'warn' as const,
         icon: 'bg-yellow-500',
         title: 'غير مستوفٍ للحد القانوني',
         msg: store.absenceType === 'continuous'
@@ -19,7 +20,7 @@ const cardConfig = computed(() => {
       }
     case 'void_company':
       return {
-        cls: 'bg-red-50 text-red-700 border-red-200',
+        severity: 'error' as const,
         icon: 'bg-red-600 animate-bounce',
         title: 'باطل قانوناً',
         msg: store.absenceType === 'continuous'
@@ -28,21 +29,21 @@ const cardConfig = computed(() => {
       }
     case 'send_date_error':
       return {
-        cls: 'bg-red-50 text-red-700 border-red-200',
+        severity: 'error' as const,
         icon: 'bg-red-500 animate-pulse',
         title: 'خطأ في تاريخ الإرسال',
         msg: `❌ تاريخ الإرسال يجب أن يكون في اليوم الأول أو الثاني أو الثالث بعد نهاية الانقطاع. ما بعد اليوم الثالث = باطل.`,
       }
     case 'expired':
       return {
-        cls: 'bg-orange-50 text-orange-700 border-orange-200',
+        severity: 'warn' as const,
         icon: 'bg-orange-500 animate-pulse',
         title: 'انتهت مهلة العذر',
         msg: `⚠️ تم انتهاء المدة القانونية لتقديم العذر (25 يوماً من بداية الانقطاع). سيتم تعديل محتوى المذكرة.`,
       }
     case 'valid':
       return {
-        cls: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+        severity: 'success' as const,
         icon: 'bg-emerald-600 animate-ping',
         title: 'مستوفية الشروط',
         msg: '✅ مكاتبة مستوفية للشروط وسارية قانونياً. جاهزة للتوقيع والاعتماد.',
@@ -54,7 +55,7 @@ const cardConfig = computed(() => {
 </script>
 
 <template>
-  <div v-if="cardConfig" :class="cardConfig.cls" class="p-5 rounded-2xl border transition-all duration-300 shadow-sm">
+  <Message v-if="cardConfig" :severity="cardConfig.severity" :closable="false" class="shadow-sm">
     <h4 class="font-bold mb-2 text-sm flex items-center gap-2">
       <span :class="cardConfig.icon" class="inline-block w-2.5 h-2.5 rounded-full"></span>
       موقف الدائرة القانونية:
@@ -70,5 +71,5 @@ const cardConfig = computed(() => {
         </span>
       </span>
     </div>
-  </div>
+  </Message>
 </template>

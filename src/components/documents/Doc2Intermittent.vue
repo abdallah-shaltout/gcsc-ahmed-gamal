@@ -17,7 +17,7 @@ const greetingTarget = ref('السيده الأستاذه / مدير إداره 
 const bodyText = computed(() => {
   const e = emp.value
   if (!e) return ''
-  return `إيماع: إلى كتابكم الوارد لنا بشأن انقطاع السيد / <strong>${e.name}</strong> — كود رقم (${e.code}) — عامل خدمه معاونه — عقد مؤقت — الإداره العامه طرفكم عن العمل <strong>${store.absenceDays} أيام</strong> متتالية اعتباراً من <strong>${formatArabicDate(store.startDate)}</strong> بدون إذن رغم إنذاره.`
+  return `إيماع: إلى كتابكم الوارد لنا بشأن انقطاع السيد / <strong>${e.name}</strong> — كود رقم (${e.code}) — عامل خدمه معاونه — عقد مؤقت — الإداره العامه طرفكم عن العمل <strong>${store.absenceDaysCount} أيام</strong> متتالية بدون إذن رغم إنذاره.`
 })
 
 const actionText = computed(() => {

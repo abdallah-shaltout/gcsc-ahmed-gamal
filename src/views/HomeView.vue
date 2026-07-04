@@ -1,9 +1,12 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
+import { useToast } from 'primevue/usetoast'
 import { useAbsenceStore, documentLabels, type DocumentType } from '@/stores/absence'
 import EmployeeSearch from '@/components/form/EmployeeSearch.vue'
 import DateFields from '@/components/form/DateFields.vue'
 import ValidationCard from '@/components/form/ValidationCard.vue'
+import RadioButton from 'primevue/radiobutton'
+import Select from 'primevue/select'
 import Doc1Warning from '@/components/documents/Doc1Warning.vue'
 import Doc2Intermittent from '@/components/documents/Doc2Intermittent.vue'
 import Doc3Followup from '@/components/documents/Doc3Followup.vue'
@@ -15,18 +18,11 @@ import Doc8DirectWarningContinuous from '@/components/documents/Doc8DirectWarnin
 import Doc9DirectWarningIntermittent from '@/components/documents/Doc9DirectWarningIntermittent.vue'
 
 const store = useAbsenceStore()
-
-const toastMsg = ref('')
-const toastVisible = ref(false)
-function showToast(msg: string) {
-  toastMsg.value = msg
-  toastVisible.value = true
-  setTimeout(() => { toastVisible.value = false }, 3000)
-}
+const toast = useToast()
 
 function loadScenario(type: string) {
   const today = new Date()
-  const fmt = (d: Date) => d.toISOString().split('T')[0]
+  const fmt = (d: Date) => d.toISOString().slice(0, 10)
   const ago = (n: number) => { const d = new Date(); d.setDate(today.getDate() - n); return fmt(d) }
   const todayStr = fmt(today)
   if (type === 'valid_continuous') {
@@ -50,13 +46,15 @@ function loadScenario(type: string) {
     store.setEmployee('3')
   } else if (type === 'valid_intermittent') {
     store.absenceType = 'intermittent'
-    store.absenceDays = 17
+    store.clearAbsenceDates()
+    const sampleDates = [3,5,8,10,12,15,18,20,22,25,27,30,33,35,38,40,42].map(n => ago(n)).filter((d): d is string => !!d)
+    sampleDates.forEach(d => store.addAbsenceDate(d))
     store.sendDate = todayStr
     store.legalPeriodExpired = false; store.currentStatus = 'committed'
     store.setEmployee('4')
   }
   store.resetDocOverride()
-  showToast('تم تطبيق السيناريو بنجاح!')
+  toast.add({ severity: 'success', summary: 'تم تطبيق السيناريو بنجاح!', life: 3000 })
 }
 
 const docComponents: Record<DocumentType, any> = {
@@ -74,6 +72,14 @@ const docComponents: Record<DocumentType, any> = {
 const isLandscape = computed(() => store.activeDoc === 'minutes')
 const activeComponent = computed(() => docComponents[store.activeDoc])
 const allDocs = Object.entries(documentLabels) as [DocumentType, string][]
+
+const docSelectOptions = computed(() => [
+  { label: `تلقائي (${documentLabels[store.autoSelectedDoc]})`, value: '' },
+  {
+    label: '── اختر يدوياً ──',
+    items: allDocs.map(([key, label]) => ({ label, value: key })),
+  },
+])
 
 function printDoc() {
   const el = document.getElementById('docPreview')
@@ -187,14 +193,14 @@ svg{display:inline-block;vertical-align:middle}
               <label class="block text-xs font-bold text-slate-700 mb-2">طبيعة الانقطاع</label>
               <div class="grid grid-cols-2 gap-3">
                 <label :class="store.absenceType === 'continuous' ? 'border-blue-500 bg-blue-50/60 ring-1 ring-blue-400/30' : 'border-slate-200 hover:bg-slate-50'" class="flex items-center gap-2.5 p-3 border rounded-xl cursor-pointer transition-all">
-                  <input type="radio" v-model="store.absenceType" value="continuous" class="w-4 h-4 text-blue-600 shrink-0" />
+                  <RadioButton v-model="store.absenceType" value="continuous" class="shrink-0" />
                   <div class="flex flex-col">
                     <span class="text-xs font-bold text-slate-800">غياب متصل</span>
                     <span class="text-[10px] text-slate-500">حد قانوني 7 أيام</span>
                   </div>
                 </label>
                 <label :class="store.absenceType === 'intermittent' ? 'border-blue-500 bg-blue-50/60 ring-1 ring-blue-400/30' : 'border-slate-200 hover:bg-slate-50'" class="flex items-center gap-2.5 p-3 border rounded-xl cursor-pointer transition-all">
-                  <input type="radio" v-model="store.absenceType" value="intermittent" class="w-4 h-4 text-blue-600 shrink-0" />
+                  <RadioButton v-model="store.absenceType" value="intermittent" class="shrink-0" />
                   <div class="flex flex-col">
                     <span class="text-xs font-bold text-slate-800">غياب منقطع</span>
                     <span class="text-[10px] text-slate-500">حد قانوني 15 يوماً</span>
@@ -253,16 +259,16 @@ svg{display:inline-block;vertical-align:middle}
           </div>
 
           <div class="flex items-center gap-2 flex-wrap">
-            <select
-              :value="store.selectedDoc ?? ''"
-              @change="(e) => { const v = (e.target as HTMLSelectElement).value; store.selectedDoc = v ? v as DocumentType : null }"
-              class="text-xs border border-slate-300 rounded-lg px-2.5 py-1.5 bg-white text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-400/30 cursor-pointer"
-            >
-              <option value="">تلقائي ({{ documentLabels[store.autoSelectedDoc] }})</option>
-              <optgroup label="── اختر يدوياً ──">
-                <option v-for="[key, label] in allDocs" :key="key" :value="key">{{ label }}</option>
-              </optgroup>
-            </select>
+            <Select
+              :modelValue="store.selectedDoc ?? ''"
+              @update:modelValue="(v: string) => { store.selectedDoc = v ? v as DocumentType : null }"
+              :options="docSelectOptions"
+              optionLabel="label"
+              optionValue="value"
+              optionGroupLabel="label"
+              optionGroupChildren="items"
+              class="text-xs"
+            />
 
             <button
               v-if="store.selectedDoc"
@@ -300,16 +306,4 @@ svg{display:inline-block;vertical-align:middle}
       </div>
     </div>
   </main>
-
-  <Transition name="toast">
-    <div v-if="toastVisible" class="fixed bottom-6 right-6 bg-slate-900 text-white px-5 py-3 rounded-xl shadow-2xl border border-slate-700 z-50 flex items-center gap-2 no-print">
-      <span class="w-2 h-2 bg-emerald-400 rounded-full animate-ping shrink-0"></span>
-      <span class="text-xs font-semibold">{{ toastMsg }}</span>
-    </div>
-  </Transition>
 </template>
-
-<style scoped>
-.toast-enter-active, .toast-leave-active { transition: all 0.3s ease; }
-.toast-enter-from, .toast-leave-to { opacity: 0; transform: translateY(12px); }
-</style>

@@ -16,7 +16,7 @@ const titleText = ref('متابعة انقطاع موظف')
 const bodyText = computed(() => {
   const e = emp.value
   if (!e) return ''
-  const days = store.absenceType === 'continuous' ? store.absenceDaysCount : store.absenceDays
+  const days = store.absenceDaysCount
   return `إيماءاً: إلى كتابكم الوارد لنا بشأن انقطاع السيد / <strong>${e.name}</strong> — كود رقم (${e.code}) — <strong>${e.title}</strong> — الإدارة العامة طرفكم عن العمل <strong>${days} يوماً</strong> متتالية اعتباراً من <strong>${formatArabicDate(store.startDate)}</strong> بدون إذن رغم إنذاره.`
 })
 

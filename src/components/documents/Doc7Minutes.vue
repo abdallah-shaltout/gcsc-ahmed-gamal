@@ -12,7 +12,7 @@ const emp = computed(() => store.selectedEmployee)
 const absenceSummary = computed(() => {
   const e = emp.value
   if (!e) return ''
-  const days = store.absenceType === 'continuous' ? store.absenceDaysCount : store.absenceDays
+  const days = store.absenceDaysCount
   const start = formatArabicDate(store.startDate)
   const end = store.absenceType === 'continuous' ? formatArabicDate(store.endDate) : ''
   const draftD = formatArabicDate(store.draftDate)

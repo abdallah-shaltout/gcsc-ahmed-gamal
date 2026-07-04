@@ -10,7 +10,7 @@ export interface Employee {
 }
 
 const today = new Date()
-const fmt = (d: Date) => d.toISOString().split('T')[0]
+const fmt = (d: Date) => d.toISOString().slice(0, 10)
 const daysAgo = (n: number) => { const d = new Date(); d.setDate(today.getDate() - n); return fmt(d) }
 
 export const mockEmployees: Employee[] = [
@@ -72,8 +72,8 @@ export const useAbsenceStore = defineStore('absence', () => {
   // draftDate mirrors sendDate — no separate input field
   const draftDate = computed(() => sendDate.value)
 
-  // ── Intermittent: manual days ────────────────────────────
-  const absenceDays = ref<number>(0)
+  // ── Intermittent: individual absence dates ───────────────
+  const absenceDates = ref<string[]>([])
 
   // ── Legal fields ─────────────────────────────────────────
   const terminationDueDate = ref('')
@@ -122,7 +122,7 @@ export const useAbsenceStore = defineStore('absence', () => {
       const diff = Math.floor((e.getTime() - s.getTime()) / 86400000) + 1
       return diff > 0 ? diff : 0
     }
-    return absenceDays.value > 0 ? absenceDays.value : 0
+    return absenceDates.value.length
   })
 
   // continuous: must have >= 7 days to be actionable; intermittent: >= 16
@@ -149,10 +149,17 @@ export const useAbsenceStore = defineStore('absence', () => {
     return diffDays >= 0 && diffDays <= 2
   })
 
-  // excuse deadline = startDate + 25 days
+  // excuse deadline = earliest absence date + 24 days (so day 1 and day 25 are both counted)
   const excuseDeadline = computed(() => {
-    if (!startDate.value) return ''
-    const d = new Date(startDate.value)
+    let base = ''
+    if (absenceType.value === 'continuous') {
+      base = startDate.value
+    } else {
+      const sorted = [...absenceDates.value].sort()
+      base = sorted[0] ?? ''
+    }
+    if (!base) return ''
+    const d = new Date(base)
     d.setDate(d.getDate() + 24)
     return d.toISOString().split('T')[0]
   })
@@ -161,7 +168,7 @@ export const useAbsenceStore = defineStore('absence', () => {
   const validationStatus = computed<ValidationStatus>(() => {
     const hasDates = absenceType.value === 'continuous'
       ? !!(selectedEmployeeId.value && startDate.value && endDate.value && sendDate.value)
-      : !!(selectedEmployeeId.value && absenceDays.value > 0 && sendDate.value)
+      : !!(selectedEmployeeId.value && absenceDates.value.length > 0 && sendDate.value)
     if (!hasDates) return 'pending'
     if (isBelowMinimum.value) return 'not_valid'
     if (isVoid.value) return 'void_company'
@@ -179,11 +186,25 @@ export const useAbsenceStore = defineStore('absence', () => {
     selectedDoc.value = null
   }
 
+  function addAbsenceDate(date: string) {
+    if (date && !absenceDates.value.includes(date)) {
+      absenceDates.value = [...absenceDates.value, date].sort()
+    }
+  }
+
+  function removeAbsenceDate(date: string) {
+    absenceDates.value = absenceDates.value.filter(d => d !== date)
+  }
+
+  function clearAbsenceDates() {
+    absenceDates.value = []
+  }
+
   return {
     // employee
     selectedEmployeeId, selectedEmployee,
     // absence
-    absenceType, startDate, endDate, sendDate, draftDate, absenceDays,
+    absenceType, startDate, endDate, sendDate, draftDate, absenceDates,
     // legal
     terminationDueDate, excusePeriod, legalPeriodExpired,
     // status
@@ -195,6 +216,6 @@ export const useAbsenceStore = defineStore('absence', () => {
     // computed
     absenceDaysCount, isBelowMinimum, isVoid, sendDateValid, excuseDeadline, validationStatus,
     // actions
-    setEmployee, resetDocOverride,
+    setEmployee, resetDocOverride, addAbsenceDate, removeAbsenceDate, clearAbsenceDates,
   }
 })
