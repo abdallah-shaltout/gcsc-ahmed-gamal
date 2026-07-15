@@ -18,6 +18,15 @@ const disabledHolidayDates = computed(() =>
 )
 const { formatArabicDate } = useArabicDate()
 
+// map "YYYY-MM-DD" holiday strings for quick lookup by calendar cell (date.year/month/day, month is 0-based)
+const holidaySet = computed(() => new Set(holidaysStore.holidays))
+function cellIso(date: { year: number; month: number; day: number }): string {
+  return `${date.year}-${String(date.month + 1).padStart(2, '0')}-${String(date.day).padStart(2, '0')}`
+}
+function isHolidayCell(date: { year: number; month: number; day: number }): boolean {
+  return holidaySet.value.has(cellIso(date))
+}
+
 const excuseDeadlineDisplay = computed(() => formatArabicDate(store.excuseDeadline))
 
 const sendDateInvalid = computed(() => {
@@ -26,7 +35,7 @@ const sendDateInvalid = computed(() => {
     if (!store.endDate) return false
     return !store.sendDateValid
   }
-  if (!store.fifteenthFromLastDate) return false
+  if (!store.day15Date) return false
   return !store.sendDateValid
 })
 
@@ -100,11 +109,19 @@ function handleConfirmExtraDates() {
     <div v-if="store.absenceType === 'continuous'" class="grid grid-cols-2 gap-3">
       <div>
         <label class="block text-[11px] font-bold text-slate-700 mb-1">بداية الانقطاع</label>
-        <DatePicker v-model="startDateModel" dateFormat="yy-mm-dd" showIcon iconDisplay="input" fluid inputClass="text-xs font-medium" />
+        <DatePicker v-model="startDateModel" dateFormat="yy-mm-dd" showIcon iconDisplay="input" fluid inputClass="text-xs font-medium">
+          <template #date="{ date }">
+            <span :title="isHolidayCell(date) ? 'عطلة رسمية' : undefined">{{ date.day }}</span>
+          </template>
+        </DatePicker>
       </div>
       <div>
         <label class="block text-[11px] font-bold text-slate-700 mb-1">نهاية الانقطاع</label>
-        <DatePicker v-model="endDateModel" dateFormat="yy-mm-dd" showIcon iconDisplay="input" fluid inputClass="text-xs font-medium" />
+        <DatePicker v-model="endDateModel" dateFormat="yy-mm-dd" showIcon iconDisplay="input" fluid inputClass="text-xs font-medium">
+          <template #date="{ date }">
+            <span :title="isHolidayCell(date) ? 'عطلة رسمية' : undefined">{{ date.day }}</span>
+          </template>
+        </DatePicker>
       </div>
     </div>
 
@@ -126,7 +143,11 @@ function handleConfirmExtraDates() {
       <!-- multi-select date picker -->
       <DatePicker v-model="pickerDates" selectionMode="multiple" :manualInput="false" inline
         :disabledDates="disabledHolidayDates"
-        dateFormat="yy-mm-dd" class="w-full" />
+        dateFormat="yy-mm-dd" class="w-full">
+        <template #date="{ date }">
+          <span :title="isHolidayCell(date) ? 'معطل — عطلة رسمية' : undefined">{{ date.day }}</span>
+        </template>
+      </DatePicker>
       <button @click="handleConfirmDates" :disabled="!pickerDates.length || remainingSlots <= 0"
         class="w-full px-3 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white rounded-xl text-xs font-bold transition-colors">
         تأكيد الإضافة{{ pickerDates.length ? ` (${pickerDates.length})` : '' }}
@@ -163,9 +184,28 @@ function handleConfirmExtraDates() {
         </div>
       </div>
 
+      <div v-if="store.day15Date" class="grid grid-cols-4 gap-1.5 text-center">
+        <div v-for="(label, i) in ['يوم 16', 'يوم 17', 'يوم 18', 'يوم 19']" :key="label"
+          class="rounded-lg border px-1.5 py-1"
+          :class="[store.day16Date, store.day17Date, store.day18Date, store.day19Date][i]
+            ? 'border-emerald-300 bg-emerald-50 text-emerald-700'
+            : 'border-slate-200 bg-slate-50 text-slate-400'">
+          <div class="text-[9px] font-bold">{{ label }}</div>
+          <div class="text-[9px] font-semibold">
+            {{ [store.day16Date, store.day17Date, store.day18Date, store.day19Date][i]
+              ? formatArabicDate([store.day16Date, store.day17Date, store.day18Date, store.day19Date][i])
+              : '—' }}
+          </div>
+        </div>
+      </div>
+
       <DatePicker v-model="extraPickerDates" selectionMode="multiple" :manualInput="false" inline
         :disabledDates="extraDisabledDates"
-        dateFormat="yy-mm-dd" class="w-full" />
+        dateFormat="yy-mm-dd" class="w-full">
+        <template #date="{ date }">
+          <span :title="isHolidayCell(date) ? 'معطل — عطلة رسمية' : undefined">{{ date.day }}</span>
+        </template>
+      </DatePicker>
       <button @click="handleConfirmExtraDates" :disabled="!extraPickerDates.length"
         class="w-full px-3 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white rounded-xl text-xs font-bold transition-colors">
         تأكيد الإضافة{{ extraPickerDates.length ? ` (${extraPickerDates.length})` : '' }}
@@ -192,16 +232,16 @@ function handleConfirmExtraDates() {
         <span v-if="store.absenceType === 'continuous' && store.endDate" class="text-[10px] font-normal text-slate-500 mr-2">
           — يجب أن يكون خلال 3 أيام من نهاية الانقطاع
         </span>
-        <span v-else-if="store.absenceType === 'intermittent' && store.fifteenthFromLastDate" class="text-[10px] font-normal text-slate-500 mr-2">
-          — يجب أن يكون بين {{ formatArabicDate(store.fifteenthFromLastDate) }} + يوم إلى + 4 أيام
+        <span v-else-if="store.absenceType === 'intermittent' && store.day15Date" class="text-[10px] font-normal text-slate-500 mr-2">
+          — يجب أن يكون من {{ formatArabicDate(store.day15Date) }}<template v-if="store.day19Date"> إلى {{ formatArabicDate(store.day19Date) }}</template><template v-else> وحتى تسجيل اليوم 19</template>
         </span>
       </label>
       <DatePicker v-model="sendDateModel" dateFormat="yy-mm-dd" showIcon iconDisplay="input" fluid :invalid="sendDateInvalid" inputClass="text-xs font-medium" />
       <p v-if="store.absenceType === 'continuous' && store.endDate && !store.sendDateValid" class="text-[10px] text-red-500 font-semibold mt-1">
         ⚠️ تاريخ الإرسال خارج النافذة المسموحة (نهاية الانقطاع + يومان فقط)
       </p>
-      <p v-else-if="store.absenceType === 'intermittent' && store.fifteenthFromLastDate && !store.sendDateValid" class="text-[10px] text-red-500 font-semibold mt-1">
-        ⚠️ تاريخ الإرسال خارج النافذة المسموحة (اليوم الخامس عشر من الغياب المتقطع + 1 إلى + 4 أيام)
+      <p v-else-if="store.absenceType === 'intermittent' && store.day15Date && !store.sendDateValid" class="text-[10px] text-red-500 font-semibold mt-1">
+        ⚠️ تاريخ الإرسال خارج النافذة المسموحة (من اليوم 15 إلى اليوم 19 من الغياب المتقطع)
       </p>
     </div>
 

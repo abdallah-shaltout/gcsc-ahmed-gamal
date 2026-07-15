@@ -84,6 +84,19 @@ export const useAbsenceStore = defineStore('absence', () => {
     [...absenceDates.value, ...extraAbsenceDates.value].sort()
   )
 
+  // day 15 = last date of the base 15-day threshold (absenceDates, already capped at 15)
+  const day15Date = computed(() => {
+    const dates = [...absenceDates.value].sort()
+    return dates[dates.length - 1] ?? ''
+  })
+
+  // day 16/17/18/19 = the 1st..4th extra absence dates recorded after day 15,
+  // in the order they were added (extraAbsenceDates is kept sorted ascending)
+  const day16Date = computed(() => extraAbsenceDates.value[0] ?? '')
+  const day17Date = computed(() => extraAbsenceDates.value[1] ?? '')
+  const day18Date = computed(() => extraAbsenceDates.value[2] ?? '')
+  const day19Date = computed(() => extraAbsenceDates.value[3] ?? '')
+
   // ── Legal fields ─────────────────────────────────────────
   const terminationDueDate = ref('')
   const excusePeriod = ref(15)
@@ -134,31 +147,27 @@ export const useAbsenceStore = defineStore('absence', () => {
     return allAbsenceDates.value.length
   })
 
-  // continuous: must have >= 7 days to be actionable; intermittent: >= 16
+  // continuous: must have >= 7 days to be actionable; intermittent: >= 15
   const isBelowMinimum = computed(() => {
     const days = absenceDaysCount.value
     if (days === 0) return false
     if (absenceType.value === 'continuous') return days < 7
-    return days < 16
+    return days < 15
   })
 
-  // continuous: >= 7 days means warning was sent too late (void); intermittent: >= 16
+  // continuous: > 7 days means warning was sent too late (void)
+  // intermittent: void is determined by sendDateValid (send date past day 19), not by day count
   const isVoid = computed(() => {
-    const days = absenceDaysCount.value
-    if (absenceType.value === 'continuous') return days >= 7
-    return days >= 16
+    if (absenceType.value === 'continuous') return absenceDaysCount.value > 7
+    return false
   })
 
-  // intermittent: the 15th absence date counting from the most recent (day 15
-  // of the legal threshold) — the valid send window is this date +1..+4 days
-  const fifteenthFromLastDate = computed(() => {
-    const dates = allAbsenceDates.value
-    if (dates.length < 15) return ''
-    return dates[dates.length - 15] ?? ''
-  })
+  // kept for backward-compat display — same as day15Date
+  const fifteenthFromLastDate = computed(() => day15Date.value)
 
   // sendDate must be within endDate .. endDate+2 (3-day window) for continuous;
-  // for intermittent, must be within fifteenthFromLastDate +1..+4 days
+  // for intermittent, must be within day15Date .. day19Date (open-ended if day19
+  // isn't recorded yet — i.e. fewer than 4 extra dates so far)
   const sendDateValid = computed(() => {
     if (!sendDate.value) return true
     if (absenceType.value === 'continuous') {
@@ -168,11 +177,13 @@ export const useAbsenceStore = defineStore('absence', () => {
       const diffDays = Math.floor((sent.getTime() - end.getTime()) / 86400000)
       return diffDays >= 0 && diffDays <= 2
     }
-    if (!fifteenthFromLastDate.value) return true
-    const base = new Date(fifteenthFromLastDate.value)
+    if (!day15Date.value) return true
+    const start = new Date(day15Date.value)
     const sent = new Date(sendDate.value)
-    const diffDays = Math.floor((sent.getTime() - base.getTime()) / 86400000)
-    return diffDays >= 1 && diffDays <= 4
+    if (sent.getTime() < start.getTime()) return false
+    if (!day19Date.value) return true
+    const end = new Date(day19Date.value)
+    return sent.getTime() <= end.getTime()
   })
 
   // excuse deadline = earliest absence date + 24 days (so day 1 and day 25 are both counted)
@@ -231,6 +242,8 @@ export const useAbsenceStore = defineStore('absence', () => {
   function addExtraAbsenceDate(date: string) {
     if (!date) return
     if (absenceDates.value.includes(date) || extraAbsenceDates.value.includes(date)) return
+    // extra dates must come strictly after day 15 (the last of the base 15-day threshold)
+    if (day15Date.value && date <= day15Date.value) return
     extraAbsenceDates.value = [...extraAbsenceDates.value, date].sort()
   }
 
@@ -258,6 +271,7 @@ export const useAbsenceStore = defineStore('absence', () => {
     selectedDoc, autoSelectedDoc, activeDoc,
     // computed
     allAbsenceDates, fifteenthFromLastDate,
+    day15Date, day16Date, day17Date, day18Date, day19Date,
     absenceDaysCount, isBelowMinimum, isVoid, sendDateValid, excuseDeadline, validationStatus,
     // actions
     setEmployee, resetDocOverride,

@@ -236,7 +236,7 @@ svg{display:inline-block;vertical-align:middle}
           </h4>
           <ul class="space-y-2.5 text-[11px] text-slate-400 leading-relaxed">
             <li class="flex items-start gap-1.5"><span class="text-blue-400 shrink-0">•</span><span><strong class="text-slate-300">متواصل:</strong> الحد الأدنى 7 أيام. يُرسل الإنذار خلال 3 أيام من نهاية الانقطاع. ما بعد ذلك = باطل.</span></li>
-            <li class="flex items-start gap-1.5"><span class="text-blue-400 shrink-0">•</span><span><strong class="text-slate-300">متفرق:</strong> الحد الأدنى 16 يوماً. من اليوم السادس عشر فصاعداً = باطل.</span></li>
+            <li class="flex items-start gap-1.5"><span class="text-blue-400 shrink-0">•</span><span><strong class="text-slate-300">متفرق:</strong> الحد الأدنى 15 يوماً. يُرسل الإنذار من اليوم 15 وحتى اليوم 19. ما بعد اليوم 19 = باطل.</span></li>
             <li class="flex items-start gap-1.5"><span class="text-blue-400 shrink-0">•</span><span><strong class="text-slate-300">مهلة العذر:</strong> 25 يوماً من تاريخ بداية الانقطاع.</span></li>
           </ul>
         </div>
