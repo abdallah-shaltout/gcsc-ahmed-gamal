@@ -13,10 +13,9 @@ function printDoc(id: string) {
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
-  html,body{font-family:'Cairo',sans-serif;background:white;color:black;direction:rtl}
+  html,body{font-family:Arial,sans-serif;background:white;color:black;direction:rtl}
   @page{size:A4 portrait;margin:15mm}
   .flex{display:flex}.flex-col{flex-direction:column}.flex-grow{flex:1 1 auto}
   .justify-between{justify-content:space-between}.items-start{align-items:flex-start}
@@ -41,7 +40,9 @@ function printDoc(id: string) {
   .pr-2{padding-right:.5rem}.pr-3{padding-right:.75rem}.pl-4{padding-left:1rem}
   .px-1\\.5{padding:.125rem .375rem}.p-3{padding:.75rem}.p-3\\.5{padding:.875rem}
   .p-2\\.5{padding:.625rem}.w-12{width:3rem}.h-12{height:3rem}
+  .h-14{height:3.5rem}.w-auto{width:auto}
   svg{display:inline-block;vertical-align:middle}
+  img{height:2.2rem;width:2.2rem;display:inline-block;object-fit:contain}
   .tracking-wide{letter-spacing:.025em}.tracking-widest{letter-spacing:.1em}
   .uppercase{text-transform:uppercase}
 </style>

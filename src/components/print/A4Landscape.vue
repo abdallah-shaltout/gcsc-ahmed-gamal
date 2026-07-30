@@ -13,10 +13,9 @@ function printLandscape(id: string) {
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
-  html,body{font-family:'Cairo',sans-serif;background:white;color:black;direction:rtl}
+  html,body{font-family:Arial,sans-serif;background:white;color:black;direction:rtl}
   @page{size:A4 landscape;margin:10mm}
   table{border-collapse:collapse;width:100%}
   td,th{border:1px solid #374151;padding:6px 10px;font-size:11px;vertical-align:top}
@@ -29,7 +28,9 @@ function printLandscape(id: string) {
   .text-slate-950{color:#020617}.text-slate-800{color:#1e293b}
   .text-slate-700{color:#334155}.text-slate-600{color:#475569}
   .tracking-widest{letter-spacing:.1em}.uppercase{text-transform:uppercase}
+  .h-14{height:3.5rem}.w-auto{width:auto}
   svg{display:inline-block;vertical-align:middle}
+  img{height:2.2rem;width:2.2rem;display:inline-block;object-fit:contain}
   .space-y-1>*+*{margin-top:.25rem}.font-black{font-weight:900}
 </style>
 </head>

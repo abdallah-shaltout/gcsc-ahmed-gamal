@@ -3,7 +3,7 @@
 
 @layer base {
   * { box-sizing: border-box; }
-  html { font-family: 'Cairo', sans-serif; }
+  html { font-family: Arial, sans-serif; }
   body { direction: rtl; }
 }
 
