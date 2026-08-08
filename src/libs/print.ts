@@ -1,3 +1,5 @@
+import html2canvas from 'html2canvas-pro';
+
 export interface PrintDocumentOptions {
     elementId: string;
     isLandscape?: boolean;
@@ -53,20 +55,25 @@ img{height:2.2rem;width:2.2rem;display:inline-block;object-fit:contain}
 .text-\\[13px\\]{font-size:13px}
 `;
 
-/**
- * Prints a document element (Arabic/RTL, A4) via a hidden iframe with Cairo font and Tailwind-equivalent CSS inlined.
- */
-export function printDocument(options: PrintDocumentOptions): void {
-    const { elementId, isLandscape = false, title = "Print", fontFamily = "Cairo" } = options;
+export async function printDocument(options: PrintDocumentOptions): Promise<void> {
+    const { elementId, isLandscape = false, title = "Print", fontFamily = "Arial" } = options;
     const el = document.getElementById(elementId);
     if (!el) return;
 
+    if (isLandscape) {
+        await printLandscapeWithCanvas(el, title);
+    } else {
+        printPortraitWithIframe(el, title, fontFamily);
+    }
+}
+
+function printPortraitWithIframe(el: HTMLElement, title: string, fontFamily: string): void {
     const iframe = document.createElement("iframe");
     iframe.style.cssText = "position:fixed;top:-9999px;left:-9999px;width:0;height:0;border:none;";
     document.body.appendChild(iframe);
 
-    const orientation = isLandscape ? "landscape" : "portrait";
-    const margin = isLandscape ? "10mm" : "15mm";
+    const orientation = "portrait";
+    const margin = "15mm";
     const fontLink = fontFamily === "Cairo"
         ? `<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">`
         : "";
@@ -77,6 +84,45 @@ export function printDocument(options: PrintDocumentOptions): void {
     doc.write(`<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><title>${title}</title>
 ${fontLink}
 <style>@page{size:A4 ${orientation};margin:${margin}}${fontRule}${PRINT_STYLES}</style></head><body style="margin:0;padding:0">${el.innerHTML}</body></html>`);
+    doc.close();
+
+    iframe.contentWindow!.focus();
+    iframe.contentWindow!.print();
+    setTimeout(() => document.body.removeChild(iframe), 1500);
+}
+
+async function printLandscapeWithCanvas(el: HTMLElement, title: string): Promise<void> {
+    const canvas = await html2canvas(el, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff'
+    });
+
+    const imgData = canvas.toDataURL('image/png');
+
+    const iframe = document.createElement('iframe');
+    iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:0;height:0;border:none;';
+    document.body.appendChild(iframe);
+
+    const doc = iframe.contentDocument!;
+    doc.open();
+    doc.write(`<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>${title}</title>
+    <style>
+        @page { size: A4 landscape; margin: 0; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { margin: 0; padding: 0; }
+        img { max-width: 100%; height: auto; display: block; }
+    </style>
+</head>
+<body>
+    <img src="${imgData}" style="width:100%;height:auto;">
+</body>
+</html>`);
     doc.close();
 
     iframe.contentWindow!.focus();

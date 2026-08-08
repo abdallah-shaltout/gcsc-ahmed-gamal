@@ -1,243 +1,495 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useToast } from 'primevue/usetoast'
-import { printDocument } from '@/libs/print'
-import { useAbsenceStore, documentLabels, type DocumentType } from '@/stores/absence'
-import EmployeeSearch from '@/components/form/EmployeeSearch.vue'
-import DateFields from '@/components/form/DateFields.vue'
-import ValidationCard from '@/components/form/ValidationCard.vue'
-import RadioButton from 'primevue/radiobutton'
-import Select from 'primevue/select'
-import Doc3Followup from '@/components/documents/Doc3Followup.vue'
-import Doc4TerminationContinuous from '@/components/documents/Doc4TerminationContinuous.vue'
-import Doc5TerminationIntermittent from '@/components/documents/Doc5TerminationIntermittent.vue'
-import Doc6CommitteeFollowup from '@/components/documents/Doc6CommitteeFollowup.vue'
-import Doc7Minutes from '@/components/documents/Doc7Minutes.vue'
+import { computed } from "vue";
+import { useToast } from "primevue/usetoast";
+import { printDocument } from "@/libs/print";
+import {
+    useAbsenceStore,
+    documentLabels,
+    type DocumentType,
+} from "@/stores/absence";
+import EmployeeSearch from "@/components/form/EmployeeSearch.vue";
+import DateFields from "@/components/form/DateFields.vue";
+import ValidationCard from "@/components/form/ValidationCard.vue";
+import RadioButton from "primevue/radiobutton";
+import Select from "primevue/select";
+import Doc3Followup from "@/components/documents/Doc3Followup.vue";
+import Doc4TerminationContinuous from "@/components/documents/Doc4TerminationContinuous.vue";
+import Doc5TerminationIntermittent from "@/components/documents/Doc5TerminationIntermittent.vue";
+import Doc6CommitteeFollowup from "@/components/documents/Doc6CommitteeFollowup.vue";
+import Doc7Minutes from "@/components/documents/Doc7Minutes.vue";
 
-const store = useAbsenceStore()
-const toast = useToast()
+const store = useAbsenceStore();
+const toast = useToast();
 
 function loadScenario(type: string) {
-  const today = new Date()
-  const fmt = (d: Date) => d.toISOString().slice(0, 10)
-  const ago = (n: number) => { const d = new Date(); d.setDate(today.getDate() - n); return fmt(d) }
-  const todayStr = fmt(today)
-  if (type === 'valid_continuous') {
-    store.absenceType = 'continuous'
-    store.startDate = ago(8); store.endDate = ago(1)
-    store.sendDate = todayStr
-    store.legalPeriodExpired = false; store.currentStatus = 'committed'
-    store.setEmployee('1')
-  } else if (type === 'void_continuous') {
-    store.absenceType = 'continuous'
-    store.startDate = ago(12); store.endDate = ago(1)
-    store.sendDate = todayStr
-    store.legalPeriodExpired = false; store.currentStatus = 'committed'
-    store.setEmployee('2')
-  } else if (type === 'legal_expired') {
-    store.absenceType = 'continuous'
-    store.startDate = ago(25); store.endDate = ago(14)
-    store.sendDate = ago(14)
-    store.legalPeriodExpired = true; store.currentStatus = 'absent'
-    store.currentAbsenceDate = todayStr
-    store.setEmployee('3')
-  } else if (type === 'valid_intermittent') {
-    store.absenceType = 'intermittent'
-    store.clearAbsenceDates()
-    const sampleDates = [3,5,8,10,12,15,18,20,22,25,27,30,33,35,38,40,42].map(n => ago(n)).filter((d): d is string => !!d)
-    sampleDates.forEach(d => store.addAbsenceDate(d))
-    store.sendDate = todayStr
-    store.legalPeriodExpired = false; store.currentStatus = 'committed'
-    store.setEmployee('4')
-  }
-  store.resetDocOverride()
-  toast.add({ severity: 'success', summary: 'تم تطبيق السيناريو بنجاح!', life: 3000 })
+    const today = new Date();
+    const fmt = (d: Date) => d.toISOString().slice(0, 10);
+    const ago = (n: number) => {
+        const d = new Date();
+        d.setDate(today.getDate() - n);
+        return fmt(d);
+    };
+    const todayStr = fmt(today);
+    if (type === "valid_continuous") {
+        store.absenceType = "continuous";
+        store.startDate = ago(8);
+        store.endDate = ago(1);
+        store.sendDate = todayStr;
+        store.legalPeriodExpired = false;
+        store.currentStatus = "committed";
+        store.setEmployee("1");
+    } else if (type === "void_continuous") {
+        store.absenceType = "continuous";
+        store.startDate = ago(12);
+        store.endDate = ago(1);
+        store.sendDate = todayStr;
+        store.legalPeriodExpired = false;
+        store.currentStatus = "committed";
+        store.setEmployee("2");
+    } else if (type === "legal_expired") {
+        store.absenceType = "continuous";
+        store.startDate = ago(25);
+        store.endDate = ago(14);
+        store.sendDate = ago(14);
+        store.legalPeriodExpired = true;
+        store.currentStatus = "absent";
+        store.currentAbsenceDate = todayStr;
+        store.setEmployee("3");
+    } else if (type === "valid_intermittent") {
+        store.absenceType = "intermittent";
+        store.clearAbsenceDates();
+        const sampleDates = [
+            3, 5, 8, 10, 12, 15, 18, 20, 22, 25, 27, 30, 33, 35, 38, 40, 42,
+        ]
+            .map((n) => ago(n))
+            .filter((d): d is string => !!d);
+        sampleDates.forEach((d) => store.addAbsenceDate(d));
+        store.sendDate = todayStr;
+        store.legalPeriodExpired = false;
+        store.currentStatus = "committed";
+        store.setEmployee("4");
+    }
+    store.resetDocOverride();
+    toast.add({
+        severity: "success",
+        summary: "تم تطبيق السيناريو بنجاح!",
+        life: 3000,
+    });
 }
 
 const docComponents: Record<DocumentType, any> = {
-  followup_absence: Doc3Followup,
-  termination_continuous: Doc4TerminationContinuous,
-  termination_intermittent: Doc5TerminationIntermittent,
-  followup_committee: Doc6CommitteeFollowup,
-  minutes: Doc7Minutes,
-}
+    followup_absence: Doc3Followup,
+    termination_continuous: Doc4TerminationContinuous,
+    termination_intermittent: Doc5TerminationIntermittent,
+    followup_committee: Doc6CommitteeFollowup,
+    minutes: Doc7Minutes,
+};
 
-const isLandscape = computed(() => store.activeDoc === 'minutes')
-const activeComponent = computed(() => docComponents[store.activeDoc])
-const allDocs = Object.entries(documentLabels) as [DocumentType, string][]
+const isLandscape = computed(() => store.activeDoc === "minutes");
+const activeComponent = computed(() => docComponents[store.activeDoc]);
+const allDocs = Object.entries(documentLabels) as [DocumentType, string][];
 
 const docSelectOptions = computed(() => [
-  { label: `تلقائي (${documentLabels[store.autoSelectedDoc]})`, value: '' },
-  {
-    label: '── اختر يدوياً ──',
-    items: allDocs.map(([key, label]) => ({ label, value: key })),
-  },
-])
+    { label: `تلقائي (${documentLabels[store.autoSelectedDoc]})`, value: "" },
+    {
+        label: "── اختر يدوياً ──",
+        items: allDocs.map(([key, label]) => ({ label, value: key })),
+    },
+]);
 
 function printDoc() {
-  printDocument({ elementId: 'docPreview', isLandscape: isLandscape.value })
+    printDocument({ elementId: "docPreview", isLandscape: isLandscape.value });
 }
 </script>
 
 <template>
-  <main class="flex-grow max-w-[1600px] w-full mx-auto px-4 py-6 sm:px-6 lg:px-8">
-
-    <!-- Quick scenarios -->
-    <div class="mb-6 p-4 bg-white rounded-2xl border border-slate-200 shadow-sm no-print">
-      <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 flex items-center gap-2">
-        <svg class="w-4 h-4 text-blue-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-        محاكي الحالات السريعة
-      </h3>
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <button @click="loadScenario('valid_continuous')" class="p-2.5 bg-slate-50 hover:bg-emerald-50 border border-slate-200 hover:border-emerald-300 rounded-xl text-xs font-bold transition-all text-right flex items-center gap-2.5">
-          <span class="shrink-0 p-1.5 bg-emerald-100 rounded-lg text-emerald-700 text-base leading-none">✓</span>
-          <div class="flex flex-col items-start"><span class="text-slate-800">انقطاع متواصل سليم</span><span class="text-[10px] font-normal text-slate-500">إنذار اليوم الـ8</span></div>
-        </button>
-        <button @click="loadScenario('void_continuous')" class="p-2.5 bg-slate-50 hover:bg-red-50 border border-slate-200 hover:border-red-300 rounded-xl text-xs font-bold transition-all text-right flex items-center gap-2.5">
-          <span class="shrink-0 p-1.5 bg-red-100 rounded-lg text-red-700 text-base leading-none">✗</span>
-          <div class="flex flex-col items-start"><span class="text-slate-800">تنبيه باطل قانوناً</span><span class="text-[10px] font-normal text-slate-500">تأخر يبطله</span></div>
-        </button>
-        <button @click="loadScenario('legal_expired')" class="p-2.5 bg-slate-50 hover:bg-orange-50 border border-slate-200 hover:border-orange-300 rounded-xl text-xs font-bold transition-all text-right flex items-center gap-2.5">
-          <span class="shrink-0 p-1.5 bg-orange-100 rounded-lg text-orange-700 text-base leading-none">⏰</span>
-          <div class="flex flex-col items-start"><span class="text-slate-800">انتهت مهلة العذر</span><span class="text-[10px] font-normal text-slate-500">مدة قانونية منتهية</span></div>
-        </button>
-        <button @click="loadScenario('valid_intermittent')" class="p-2.5 bg-slate-50 hover:bg-blue-50 border border-slate-200 hover:border-blue-300 rounded-xl text-xs font-bold transition-all text-right flex items-center gap-2.5">
-          <span class="shrink-0 p-1.5 bg-blue-100 rounded-lg text-blue-700 text-base leading-none font-mono">≈</span>
-          <div class="flex flex-col items-start"><span class="text-slate-800">انقطاع متفرّق سليم</span><span class="text-[10px] font-normal text-slate-500">17 يوم منقطع</span></div>
-        </button>
-      </div>
-    </div>
-
-    <!-- Two-column layout -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-
-      <!-- Form panel -->
-      <div class="lg:col-span-5 space-y-5 no-print">
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-          <div class="bg-gradient-to-l from-slate-900 to-slate-800 p-4 text-white flex justify-between items-center">
-            <h3 class="text-sm font-bold flex items-center gap-2">
-              <span class="w-2.5 h-2.5 bg-blue-400 rounded-full animate-pulse"></span>
-              معطيات الانقطاع
-            </h3>
-            <span class="text-[10px] text-slate-400 font-mono">GCSDC — HR System</span>
-          </div>
-          <div class="p-5 space-y-5">
-            <EmployeeSearch />
-            <div>
-              <label class="block text-xs font-bold text-slate-700 mb-2">طبيعة الانقطاع</label>
-              <div class="grid grid-cols-2 gap-3">
-                <label :class="store.absenceType === 'continuous' ? 'border-blue-500 bg-blue-50/60 ring-1 ring-blue-400/30' : 'border-slate-200 hover:bg-slate-50'" class="flex items-center gap-2.5 p-3 border rounded-xl cursor-pointer transition-all">
-                  <RadioButton v-model="store.absenceType" value="continuous" class="shrink-0" />
-                  <div class="flex flex-col">
-                    <span class="text-xs font-bold text-slate-800">غياب متصل</span>
-                    <span class="text-[10px] text-slate-500">حد قانوني 7 أيام</span>
-                  </div>
-                </label>
-                <label :class="store.absenceType === 'intermittent' ? 'border-blue-500 bg-blue-50/60 ring-1 ring-blue-400/30' : 'border-slate-200 hover:bg-slate-50'" class="flex items-center gap-2.5 p-3 border rounded-xl cursor-pointer transition-all">
-                  <RadioButton v-model="store.absenceType" value="intermittent" class="shrink-0" />
-                  <div class="flex flex-col">
-                    <span class="text-xs font-bold text-slate-800">غياب منقطع</span>
-                    <span class="text-[10px] text-slate-500">حد قانوني 15 يوماً</span>
-                  </div>
-                </label>
-              </div>
-            </div>
-            <DateFields />
-          </div>
-        </div>
-
-        <ValidationCard />
-
-        <div class="grid grid-cols-3 gap-3">
-          <RouterLink to="/committee" class="p-3 bg-blue-700 hover:bg-blue-800 text-white rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 shadow-md">
-            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-            عرض لجنة
-          </RouterLink>
-          <RouterLink to="/minutes" class="p-3 bg-slate-700 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 shadow-md">
-            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-            المحضر
-          </RouterLink>
-          <RouterLink to="/documents" class="p-3 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 shadow-md">
-            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
-            كل النماذج
-          </RouterLink>
-        </div>
-
-        <div class="bg-slate-900 text-slate-300 p-4 rounded-2xl border border-slate-800 shadow-lg">
-          <h4 class="text-xs font-bold text-blue-400 mb-3 flex items-center gap-1.5">
-            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-            المرجع القانوني — المادة (121)
-          </h4>
-          <ul class="space-y-2.5 text-[11px] text-slate-400 leading-relaxed">
-            <li class="flex items-start gap-1.5"><span class="text-blue-400 shrink-0">•</span><span><strong class="text-slate-300">متواصل:</strong> الحد الأدنى 7 أيام. يُرسل الإنذار خلال 3 أيام من نهاية الانقطاع. ما بعد ذلك = باطل.</span></li>
-            <li class="flex items-start gap-1.5"><span class="text-blue-400 shrink-0">•</span><span><strong class="text-slate-300">متفرق:</strong> الحد الأدنى 15 يوماً. يُرسل الإنذار من اليوم 15 وحتى اليوم 19. ما بعد اليوم 19 = باطل.</span></li>
-            <li class="flex items-start gap-1.5"><span class="text-blue-400 shrink-0">•</span><span><strong class="text-slate-300">مهلة العذر:</strong> 25 يوماً من تاريخ بداية الانقطاع.</span></li>
-          </ul>
-        </div>
-      </div>
-
-      <!-- Live document preview -->
-      <div class="lg:col-span-7 flex flex-col items-center lg:sticky lg:top-4">
-
-        <!-- Preview toolbar -->
-        <div class="w-full flex flex-wrap justify-between items-end gap-3 mb-3 no-print">
-          <div>
-            <p class="text-xs font-bold text-slate-500 flex items-center gap-1.5 mb-0.5">
-              <span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
-              معاينة مباشرة
-            </p>
-            <p class="text-[10px] text-slate-400">
-              تلقائي: <span class="font-bold text-blue-600">{{ documentLabels[store.autoSelectedDoc] }}</span>
-              <span v-if="store.selectedDoc" class="text-orange-500 mr-2">← تم التعديل يدوياً</span>
-            </p>
-          </div>
-
-          <div class="flex items-center gap-2 flex-wrap">
-            <Select
-              :modelValue="store.selectedDoc ?? ''"
-              @update:modelValue="(v: string) => { store.selectedDoc = v ? v as DocumentType : null }"
-              :options="docSelectOptions"
-              optionLabel="label"
-              optionValue="value"
-              optionGroupLabel="label"
-              optionGroupChildren="items"
-              class="text-xs"
-            />
-
-            <button
-              v-if="store.selectedDoc"
-              @click="store.resetDocOverride()"
-              class="px-2.5 py-1.5 text-[11px] text-orange-600 border border-orange-300 rounded-lg hover:bg-orange-50 transition-all font-bold"
-            >
-              ↺ تلقائي
-            </button>
-
-            <button
-              @click="printDoc"
-              class="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 shadow-md"
-            >
-              <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
-              طباعة
-            </button>
-          </div>
-        </div>
-
-        <!-- A4 preview box -->
+    <main
+        class="flex-grow max-w-[1600px] w-full mx-auto px-4 py-6 sm:px-6 lg:px-8"
+    >
+        <!-- Quick scenarios -->
         <div
-          id="docPreview"
-          :class="[
-            'bg-white shadow-2xl border border-slate-300/80 rounded-2xl text-black leading-relaxed flex flex-col w-full',
-            isLandscape ? 'max-w-[1050px] p-8 text-[11px]' : 'max-w-[640px] p-12 text-[12.5px]'
-          ]"
-          :style="isLandscape ? 'min-height:680px' : 'min-height:877px'"
+            class="mb-6 p-4 bg-white rounded-2xl border border-slate-200 shadow-sm no-print"
         >
-          <component :is="activeComponent" />
+            <h3
+                class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 flex items-center gap-2"
+            >
+                <svg
+                    class="w-4 h-4 text-blue-600 shrink-0"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M13 10V3L4 14h7v7l9-11h-7z"
+                    />
+                </svg>
+                محاكي الحالات السريعة
+            </h3>
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                <button
+                    @click="loadScenario('valid_continuous')"
+                    class="p-2.5 bg-slate-50 hover:bg-emerald-50 border border-slate-200 hover:border-emerald-300 rounded-xl text-xs font-bold transition-all text-right flex items-center gap-2.5"
+                >
+                    <span
+                        class="shrink-0 p-1.5 bg-emerald-100 rounded-lg text-emerald-700 text-base leading-none"
+                        >✓</span
+                    >
+                    <div class="flex flex-col items-start">
+                        <span class="text-slate-800">انقطاع متواصل سليم</span
+                        ><span class="text-[10px] font-normal text-slate-500"
+                            >إنذار اليوم الـ8</span
+                        >
+                    </div>
+                </button>
+                <button
+                    @click="loadScenario('void_continuous')"
+                    class="p-2.5 bg-slate-50 hover:bg-red-50 border border-slate-200 hover:border-red-300 rounded-xl text-xs font-bold transition-all text-right flex items-center gap-2.5"
+                >
+                    <span
+                        class="shrink-0 p-1.5 bg-red-100 rounded-lg text-red-700 text-base leading-none"
+                        >✗</span
+                    >
+                    <div class="flex flex-col items-start">
+                        <span class="text-slate-800">تنبيه باطل قانوناً</span
+                        ><span class="text-[10px] font-normal text-slate-500"
+                            >تأخر يبطله</span
+                        >
+                    </div>
+                </button>
+                <button
+                    @click="loadScenario('legal_expired')"
+                    class="p-2.5 bg-slate-50 hover:bg-orange-50 border border-slate-200 hover:border-orange-300 rounded-xl text-xs font-bold transition-all text-right flex items-center gap-2.5"
+                >
+                    <span
+                        class="shrink-0 p-1.5 bg-orange-100 rounded-lg text-orange-700 text-base leading-none"
+                        >⏰</span
+                    >
+                    <div class="flex flex-col items-start">
+                        <span class="text-slate-800">انتهت مهلة العذر</span
+                        ><span class="text-[10px] font-normal text-slate-500"
+                            >مدة قانونية منتهية</span
+                        >
+                    </div>
+                </button>
+                <button
+                    @click="loadScenario('valid_intermittent')"
+                    class="p-2.5 bg-slate-50 hover:bg-blue-50 border border-slate-200 hover:border-blue-300 rounded-xl text-xs font-bold transition-all text-right flex items-center gap-2.5"
+                >
+                    <span
+                        class="shrink-0 p-1.5 bg-blue-100 rounded-lg text-blue-700 text-base leading-none font-mono"
+                        >≈</span
+                    >
+                    <div class="flex flex-col items-start">
+                        <span class="text-slate-800">انقطاع متفرّق سليم</span
+                        ><span class="text-[10px] font-normal text-slate-500"
+                            >17 يوم منقطع</span
+                        >
+                    </div>
+                </button>
+            </div>
         </div>
 
-        <p class="no-print text-[10px] text-slate-400 mt-3 text-center select-none">
-          💡 انقر على أي نص في الورقة لتعديله مباشرة قبل الطباعة
-        </p>
-      </div>
-    </div>
-  </main>
+        <!-- Two-column layout -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            <!-- Form panel -->
+            <div class="lg:col-span-5 space-y-5 no-print">
+                <div
+                    class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden"
+                >
+                    <div
+                        class="bg-gradient-to-l from-slate-900 to-slate-800 p-4 text-white flex justify-between items-center"
+                    >
+                        <h3 class="text-sm font-bold flex items-center gap-2">
+                            <span
+                                class="w-2.5 h-2.5 bg-blue-400 rounded-full animate-pulse"
+                            ></span>
+                            معطيات الانقطاع
+                        </h3>
+                        <span class="text-[10px] text-slate-400 font-mono"
+                            >GCSDC — HR System</span
+                        >
+                    </div>
+                    <div class="p-5 space-y-5">
+                        <EmployeeSearch />
+                        <div>
+                            <label
+                                class="block text-xs font-bold text-slate-700 mb-2"
+                                >طبيعة الانقطاع</label
+                            >
+                            <div class="grid grid-cols-2 gap-3">
+                                <label
+                                    :class="
+                                        store.absenceType === 'continuous'
+                                            ? 'border-blue-500 bg-blue-50/60 ring-1 ring-blue-400/30'
+                                            : 'border-slate-200 hover:bg-slate-50'
+                                    "
+                                    class="flex items-center gap-2.5 p-3 border rounded-xl cursor-pointer transition-all"
+                                >
+                                    <RadioButton
+                                        v-model="store.absenceType"
+                                        value="continuous"
+                                        class="shrink-0"
+                                    />
+                                    <div class="flex flex-col">
+                                        <span
+                                            class="text-xs font-bold text-slate-800"
+                                            >غياب متصل</span
+                                        >
+                                        <span class="text-[10px] text-slate-500"
+                                            >حد قانوني 7 أيام</span
+                                        >
+                                    </div>
+                                </label>
+                                <label
+                                    :class="
+                                        store.absenceType === 'intermittent'
+                                            ? 'border-blue-500 bg-blue-50/60 ring-1 ring-blue-400/30'
+                                            : 'border-slate-200 hover:bg-slate-50'
+                                    "
+                                    class="flex items-center gap-2.5 p-3 border rounded-xl cursor-pointer transition-all"
+                                >
+                                    <RadioButton
+                                        v-model="store.absenceType"
+                                        value="intermittent"
+                                        class="shrink-0"
+                                    />
+                                    <div class="flex flex-col">
+                                        <span
+                                            class="text-xs font-bold text-slate-800"
+                                            >غياب منقطع</span
+                                        >
+                                        <span class="text-[10px] text-slate-500"
+                                            >حد قانوني 15 يوماً</span
+                                        >
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                        <DateFields />
+                    </div>
+                </div>
+
+                <ValidationCard />
+
+                <div class="grid grid-cols-3 gap-3">
+                    <RouterLink
+                        to="/committee"
+                        class="p-3 bg-blue-700 hover:bg-blue-800 text-white rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 shadow-md"
+                    >
+                        <svg
+                            class="w-4 h-4 shrink-0"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"
+                            />
+                        </svg>
+                        عرض لجنة
+                    </RouterLink>
+                    <RouterLink
+                        to="/minutes"
+                        class="p-3 bg-slate-700 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 shadow-md"
+                    >
+                        <svg
+                            class="w-4 h-4 shrink-0"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                            />
+                        </svg>
+                        المحضر
+                    </RouterLink>
+                    <RouterLink
+                        to="/documents"
+                        class="p-3 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 shadow-md"
+                    >
+                        <svg
+                            class="w-4 h-4 shrink-0"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                            />
+                        </svg>
+                        كل النماذج
+                    </RouterLink>
+                </div>
+
+                <div
+                    class="bg-slate-900 text-slate-300 p-4 rounded-2xl border border-slate-800 shadow-lg"
+                >
+                    <h4
+                        class="text-xs font-bold text-blue-400 mb-3 flex items-center gap-1.5"
+                    >
+                        <svg
+                            class="w-4 h-4 shrink-0"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                            />
+                        </svg>
+                        المرجع القانوني — المادة (121)
+                    </h4>
+                    <ul
+                        class="space-y-2.5 text-[11px] text-slate-400 leading-relaxed"
+                    >
+                        <li class="flex items-start gap-1.5">
+                            <span class="text-blue-400 shrink-0">•</span
+                            ><span
+                                ><strong class="text-slate-300">متواصل:</strong>
+                                الحد الأدنى 7 أيام. يُرسل الإنذار خلال 3 أيام من
+                                نهاية الانقطاع. ما بعد ذلك = باطل.</span
+                            >
+                        </li>
+                        <li class="flex items-start gap-1.5">
+                            <span class="text-blue-400 shrink-0">•</span
+                            ><span
+                                ><strong class="text-slate-300">متفرق:</strong>
+                                الحد الأدنى 15 يوماً. يُرسل الإنذار من اليوم 15
+                                وحتى اليوم 19. ما بعد اليوم 19 = باطل.</span
+                            >
+                        </li>
+                        <li class="flex items-start gap-1.5">
+                            <span class="text-blue-400 shrink-0">•</span
+                            ><span
+                                ><strong class="text-slate-300"
+                                    >مهلة العذر:</strong
+                                >
+                                25 يوماً من تاريخ بداية الانقطاع.</span
+                            >
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Live document preview -->
+            <div
+                class="lg:col-span-7 flex flex-col items-center lg:sticky lg:top-4"
+            >
+                <!-- Preview toolbar -->
+                <div
+                    class="w-full flex flex-wrap justify-between items-end gap-3 mb-3 no-print"
+                >
+                    <div>
+                        <p
+                            class="text-xs font-bold text-slate-500 flex items-center gap-1.5 mb-0.5"
+                        >
+                            <span
+                                class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"
+                            ></span>
+                            معاينة مباشرة
+                        </p>
+                        <p class="text-[10px] text-slate-400">
+                            تلقائي:
+                            <span class="font-bold text-blue-600">{{
+                                documentLabels[store.autoSelectedDoc]
+                            }}</span>
+                            <span
+                                v-if="store.selectedDoc"
+                                class="text-orange-500 mr-2"
+                                >← تم التعديل يدوياً</span
+                            >
+                        </p>
+                    </div>
+
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <Select
+                            :modelValue="store.selectedDoc ?? ''"
+                            @update:modelValue="
+                                (v: string) => {
+                                    store.selectedDoc = v
+                                        ? (v as DocumentType)
+                                        : null;
+                                }
+                            "
+                            :options="docSelectOptions"
+                            optionLabel="label"
+                            optionValue="value"
+                            optionGroupLabel="label"
+                            optionGroupChildren="items"
+                            class="text-xs"
+                        />
+
+                        <button
+                            v-if="store.selectedDoc"
+                            @click="store.resetDocOverride()"
+                            class="px-2.5 py-1.5 text-[11px] text-orange-600 border border-orange-300 rounded-lg hover:bg-orange-50 transition-all font-bold"
+                        >
+                            ↺ تلقائي
+                        </button>
+
+                        <button
+                            @click="printDoc"
+                            class="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 shadow-md"
+                        >
+                            <svg
+                                class="w-4 h-4 shrink-0"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"
+                                />
+                            </svg>
+                            طباعة
+                        </button>
+                    </div>
+                </div>
+
+                <!-- A4 preview box -->
+                <div
+                    :class="[
+                        'bg-white shadow-2xl border border-slate-300/80 rounded-2xl text-black leading-relaxed flex flex-col w-full',
+                        isLandscape
+                            ? 'max-w-[1050px] p-8 text-[11px]'
+                            : 'max-w-[640px] p-12 text-[12.5px]',
+                    ]"
+                    :style="
+                        isLandscape ? 'min-height:680px' : 'min-height:877px'
+                    "
+                >
+                    <component
+                        id="docPreview"
+                        class="p-2"
+                        :is="activeComponent"
+                    />
+                </div>
+
+                <p
+                    class="no-print text-[10px] text-slate-400 mt-3 text-center select-none"
+                >
+                    💡 انقر على أي نص في الورقة لتعديله مباشرة قبل الطباعة
+                </p>
+            </div>
+        </div>
+    </main>
 </template>
