@@ -289,7 +289,7 @@ function handleConfirmExtraDates() {
     </div>
 
     <!-- تم انتهاء المدة القانونية -->
-    <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+    <div v-if="store.absenceType === 'continuous'" class="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
       <label class="flex items-start gap-2.5 cursor-pointer">
         <Checkbox v-model="store.legalPeriodExpired" binary class="mt-1" />
         <div class="flex flex-col">

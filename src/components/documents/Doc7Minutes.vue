@@ -13,11 +13,24 @@ const absenceSummary = computed(() => {
   const e = emp.value
   if (!e) return ''
   const days = store.absenceDaysCount
-  const start = formatArabicDate(store.startDate)
-  const end = store.absenceType === 'continuous' ? formatArabicDate(store.endDate) : ''
   const draftD = formatArabicDate(store.draftDate)
   const sendD = formatArabicDate(store.sendDate)
   const deadline = formatArabicDate(store.excuseDeadline)
+
+  if (store.absenceType === 'intermittent') {
+    const from = formatArabicDate(store.day15Date)
+    return [
+      `— تم التعاقد معه بوظيفة ${e.title} اعتباراً من .......`,
+      `— ورد إلينا كتاب السيده الاستاذه / مدير اداره شئون الخدمه بشأن انقطاع المذكور عن العمل متقطعا اعتباراً من ${from} حتى تاريخه بدون إذن رغم انذاره.`,
+      `— تم إنذار المذكور قانوناً صحيحاً في ${draftD}.`,
+      `— انتهت المهلة القانونية لتقديم العذر في ${deadline}.`,
+      `— بلغ إجمالي أيام الانقطاع المذكورة أكثر من (${days}) يوماً.`,
+      '— تنطبق عليه نص المادة (121) الفقرة السابعة من لائحة نظام العاملين بالشركة للانقطاع عن العمل.',
+    ].join('\n')
+  }
+
+  const start = formatArabicDate(store.startDate)
+  const end = formatArabicDate(store.endDate)
   return [
     `— تم التعاقد معه بوظيفة ${e.title} اعتباراً من .......`,
     `— ورد إلينا كتاب جهة العمل بشأن انقطاع المذكور من العمل اعتباراً من ${start}${end ? ' حتى ' + end : ''} بدون إذن رغم إنذاره.`,
@@ -41,26 +54,7 @@ const members = ref(['', '', '', '', '', '', ''])
 
 <template>
   <div class="flex flex-col flex-grow">
-    <!-- Header with minutes ref -->
-    <div class="flex justify-between items-start border-b-2 border-slate-900 pb-4 mb-5">
-      <div class="text-right">
-        <p class="font-extrabold text-sm text-slate-950">شركة مياه الصرف الصحي للقاهرة الكبرى</p>
-        <p class="text-[10.5px] font-bold">الإدارة العامة للشئون الإدارية والموارد البشرية</p>
-      </div>
-      <svg class="w-12 h-12 text-blue-950" viewBox="0 0 100 100" fill="none">
-        <circle cx="50" cy="50" r="45" stroke="currentColor" stroke-width="5"/>
-        <path d="M50 20 C35 45 35 65 50 80 C65 65 65 45 50 20 Z" fill="currentColor"/>
-        <path d="M35 50 Q50 65 65 50" stroke="white" stroke-width="3" fill="none"/>
-      </svg>
-      <div class="text-left text-[10px] text-slate-700 space-y-1">
-        <div class="flex gap-2">
-          <span class="font-bold">تابع محضر اجتماع رقم (</span>
-          <EditablePara tag="span" v-model:text="store.committeeRefNo" class="inline border-b border-slate-400 min-w-[40px] text-center" />
-          <span class="font-bold">)</span>
-        </div>
-        <p>الصادر بتاريخ: <span class="font-bold">{{ formatArabicDate(store.committeeDate) }}</span></p>
-      </div>
-    </div>
+    <DocumentHeader />
 
     <!-- Main table -->
     <div class="flex-grow overflow-auto">

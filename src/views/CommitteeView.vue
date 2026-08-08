@@ -2,39 +2,14 @@
 import { ref } from 'vue'
 import { useAbsenceStore } from '@/stores/absence'
 import { useArabicDate } from '@/composables/useArabicDate'
+import { printDocument } from '@/libs/print'
 import Doc6CommitteeFollowup from '@/components/documents/Doc6CommitteeFollowup.vue'
 
 const store = useAbsenceStore()
 const { formatArabicDate } = useArabicDate()
 
 function printDoc() {
-  const el = document.getElementById('committeePreview')
-  if (!el) return
-  const iframe = document.createElement('iframe')
-  iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:0;height:0;border:none;'
-  document.body.appendChild(iframe)
-  const doc = iframe.contentDocument!
-  doc.open()
-  doc.write(`<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8">
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<style>*{box-sizing:border-box;margin:0;padding:0}html,body{font-family:'Cairo',sans-serif;direction:rtl;color:#0f172a}@page{size:A4 portrait;margin:15mm}
-.flex{display:flex}.flex-col{flex-direction:column}.flex-grow{flex:1 1 auto}.justify-between{justify-content:space-between}.items-center{align-items:center}
-.text-center{text-align:center}.text-justify{text-align:justify}.font-extrabold{font-weight:800}.font-bold{font-weight:700}.font-semibold{font-weight:600}
-.text-sm{font-size:.875rem}.text-xs{font-size:.75rem}.text-base{font-size:1rem}.underline{text-decoration:underline}.decoration-double{text-decoration-style:double}
-.leading-relaxed{line-height:1.625}.space-y-4>*+*{margin-top:1rem}.space-y-3>*+*{margin-top:.75rem}.border-b-2{border-bottom:2px solid}.border-t{border-top:1px solid}
-.border-b{border-bottom:1px solid}.border{border:1px solid}.border-dashed{border-style:dashed}.border-slate-900{border-color:#0f172a}.border-slate-300{border-color:#cbd5e1}
-.border-slate-200{border-color:#e2e8f0}.rounded{border-radius:.25rem}.rounded-lg{border-radius:.5rem}
-.bg-slate-100{background:#f1f5f9}.text-slate-950{color:#020617}.text-slate-900{color:#0f172a}.text-slate-800{color:#1e293b}.text-slate-700{color:#334155}
-.mb-5{margin-bottom:1.25rem}.mb-3{margin-bottom:.75rem}.mb-2{margin-bottom:.5rem}.mt-auto{margin-top:auto}.mt-4{margin-top:1rem}.mt-3{margin-top:.75rem}
-.pt-4{padding-top:1rem}.pt-3{padding-top:.75rem}.pb-4{padding-bottom:1rem}.pb-3{padding-bottom:.75rem}
-.pr-3{padding-right:.75rem}.p-3{padding:.75rem}.p-4{padding:1rem}.whitespace-pre-line{white-space:pre-line}
-[contenteditable]{outline:none!important;background:transparent!important}
-.text-\\[12\\.5px\\]{font-size:12.5px}.text-\\[12px\\]{font-size:12px}
-</style></head><body style="margin:0;padding:0">${el.innerHTML}</body></html>`)
-  doc.close()
-  iframe.contentWindow!.focus()
-  iframe.contentWindow!.print()
-  setTimeout(() => document.body.removeChild(iframe), 1500)
+  printDocument({ elementId: 'committeePreview', isLandscape: false })
 }
 </script>
 

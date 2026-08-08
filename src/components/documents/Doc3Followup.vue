@@ -17,6 +17,9 @@ const bodyText = computed(() => {
   const e = emp.value
   if (!e) return ''
   const days = store.absenceDaysCount
+  if (store.absenceType === 'intermittent') {
+    return `إيماءاً: إلى كتابكم الوارد لنا بشأن انقطاع السيد / <strong>${e.name}</strong> — كود رقم (${e.code}) — <strong>${e.title}</strong> — الإدارة العامة طرفكم عن العمل <strong>${days} يوماً</strong> متقطعة بدون إذن رغم إنذاره.`
+  }
   return `إيماءاً: إلى كتابكم الوارد لنا بشأن انقطاع السيد / <strong>${e.name}</strong> — كود رقم (${e.code}) — <strong>${e.title}</strong> — الإدارة العامة طرفكم عن العمل <strong>${days} يوماً</strong> متتالية اعتباراً من <strong>${formatArabicDate(store.startDate)}</strong> بدون إذن رغم إنذاره.`
 })
 

@@ -33,26 +33,18 @@ export type CurrentStatus = 'committed' | 'absent'
 
 // Document types that can be auto-selected or manually overridden
 export type DocumentType =
-  | 'warning_continuous'       // 1 — إنذار متصل
-  | 'warning_intermittent'     // 2 — إنذار منقطع
   | 'followup_absence'         // 3 — متابعة انقطاع
   | 'termination_continuous'   // 4 — قرار إنهاء متصل
   | 'termination_intermittent' // 5 — قرار إنهاء منقطع
   | 'followup_committee'       // 6 — متابعة بعد اللجنة
   | 'minutes'                  // 7 — محضر اللجنة
-  | 'direct_warning_continuous'    // 8 — إنذار للموظف متصل
-  | 'direct_warning_intermittent'  // 9 — إنذار للموظف منقطع
 
 export const documentLabels: Record<DocumentType, string> = {
-  warning_continuous: '1 — إنذار متصل',
-  warning_intermittent: '2 — إنذار منقطع',
   followup_absence: '3 — متابعة انقطاع',
   termination_continuous: '4 — قرار إنهاء (متصل)',
   termination_intermittent: '5 — قرار إنهاء (منقطع)',
   followup_committee: '6 — متابعة بعد اللجنة',
   minutes: '7 — محضر اللجنة',
-  direct_warning_continuous: '8 — إنذار للموظف (متصل)',
-  direct_warning_intermittent: '9 — إنذار للموظف (منقطع)',
 }
 
 export const useAbsenceStore = defineStore('absence', () => {
@@ -118,15 +110,12 @@ export const useAbsenceStore = defineStore('absence', () => {
   const selectedDoc = ref<DocumentType | null>(null)
 
   const autoSelectedDoc = computed<DocumentType>(() => {
-    const days = absenceDaysCount.value
     if (absenceType.value === 'continuous') {
-      if (isVoid.value) return 'warning_continuous'
       if (legalPeriodExpired.value) return 'termination_continuous'
-      return 'warning_continuous'
+      return 'followup_absence'
     } else {
-      if (isVoid.value) return 'warning_intermittent'
       if (legalPeriodExpired.value) return 'termination_intermittent'
-      return 'warning_intermittent'
+      return 'followup_absence'
     }
   })
 
