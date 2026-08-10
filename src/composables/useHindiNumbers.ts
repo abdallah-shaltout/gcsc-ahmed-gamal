@@ -3,7 +3,7 @@ export function useHindiNumbers() {
 
   const convertToHindi = (value: string | number): string => {
     const stringValue = String(value)
-    return stringValue.replace(/\d/g, (digit) => hindiDigits[parseInt(digit)])
+    return stringValue.replace(/\d/g, (digit) => hindiDigits[parseInt(digit)]!)
   }
 
   return {

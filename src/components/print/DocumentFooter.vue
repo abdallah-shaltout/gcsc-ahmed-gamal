@@ -17,6 +17,11 @@ defineProps<{
           <span class="text-[11.5px] font-extrabold">{{ signerTitle ?? 'مدير عام الموارد البشرية' }}</span>
         </p>
         <p class="text-slate-400 font-mono">............................................</p>
+        <p class="font-bold text-slate-950 mt-1">
+          الاستاذ<br>
+          حازم فاروق عبدالمنصف<br>
+          <span class="text-[11.5px] font-extrabold">المدير العام الموارد البشرية</span>
+        </p>
       </div>
     </div>
     <CompanyFooter />
