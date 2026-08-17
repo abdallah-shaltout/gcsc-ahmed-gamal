@@ -92,7 +92,7 @@ const committeeDecisionText = computed(() => {
         <DocumentHeader />
 
         <!-- Title -->
-        <div class="text-center font-bold text-base py-0.5 print:text-sm">
+        <div class="text-center font-bold text-lg py-0.5 print:text-base">
             محضر اجتماع رقم ( ) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ( )
         </div>
 
@@ -102,39 +102,39 @@ const committeeDecisionText = computed(() => {
         >
             <!-- Headers -->
             <div
-                class="col-span-1 bg-gray-200 border border-gray-400 p-1 flex items-center justify-center font-bold text-xs text-slate-900"
+                class="col-span-1 bg-gray-200 border border-gray-400 p-1 flex items-center justify-center font-bold text-sm text-slate-900"
             >
                 م
             </div>
             <div
-                class="col-span-3 bg-gray-200 border border-gray-400 p-1 flex items-center justify-center font-bold text-xs text-slate-900"
+                class="col-span-3 bg-gray-200 border border-gray-400 p-1 flex items-center justify-center font-bold text-sm text-slate-900"
             >
                 بيانات الموظف
             </div>
             <div
-                class="col-span-1 bg-gray-200 border border-gray-400 p-1 flex items-center justify-center font-bold text-xs text-slate-900"
+                class="col-span-1 bg-gray-200 border border-gray-400 p-1 flex items-center justify-center font-bold text-sm text-slate-900"
             >
                 جهة العمل
             </div>
             <div
-                class="col-span-5 bg-gray-200 border border-gray-400 p-1 flex items-center justify-center font-bold text-xs text-slate-900"
+                class="col-span-5 bg-gray-200 border border-gray-400 p-1 flex items-center justify-center font-bold text-sm text-slate-900"
             >
                 العرض
             </div>
             <div
-                class="col-span-2 bg-gray-200 border border-gray-400 p-1 flex items-center justify-center font-bold text-xs text-slate-900"
+                class="col-span-2 bg-gray-200 border border-gray-400 p-1 flex items-center justify-center font-bold text-sm text-slate-900"
             >
                 التوصيات
             </div>
 
             <!-- Row 1 -->
             <div
-                class="col-span-1 border border-gray-400 p-1 flex items-center justify-center font-bold text-sm"
+                class="col-span-1 border border-gray-400 p-1 flex items-center justify-center font-bold text-base min-h-50"
             >
                 {{ convertToHindi(1) }}
             </div>
             <div
-                class="col-span-3 border border-gray-400 p-0.5 print:p-1 text-[10px] print:text-[9px] space-y-0"
+                class="col-span-3 border border-gray-400 p-0.5 print:p-1 text-xs print:text-[11px] space-y-0"
                 v-if="emp"
             >
                 <p class="font-bold text-black">{{ emp.name }}</p>
@@ -142,21 +142,21 @@ const committeeDecisionText = computed(() => {
                 <p class="text-black">{{ emp.title }}</p>
             </div>
             <div
-                class="col-span-3 border border-gray-400 p-0.5 text-[10px] print:text-[9px]"
+                class="col-span-3 border border-gray-400 p-0.5 text-xs print:text-[11px]"
                 v-else
             >
                 <p class="text-black">اختر موظفاً</p>
             </div>
 
             <div
-                class="col-span-1 border border-gray-400 p-1 text-center text-[10px] print:text-[9px] flex items-center justify-center"
-                style="writing-mode: vertical-rl"
+                class="col-span-1 border border-gray-400 p-1 text-center text-xs print:text-[11px] flex items-center justify-center"
+                style="writing-mode: sideways-lr"
             >
                 {{ emp?.department ?? "........" }}
             </div>
 
             <div
-                class="col-span-5 border border-gray-400 p-1 text-[10px] print:text-[9px] text-right"
+                class="col-span-5 border border-gray-400 p-1 text-xs print:text-[11px] text-right"
             >
                 <EditablePara
                     :text="absenceSummary"
@@ -165,7 +165,7 @@ const committeeDecisionText = computed(() => {
             </div>
 
             <div
-                class="col-span-2 border border-gray-400 p-1 text-[10px] print:text-[9px] text-center flex items-center justify-center"
+                class="col-span-2 border border-gray-400 p-1 text-xs print:text-[11px] text-center flex items-center justify-center"
             >
                 <EditablePara
                     v-model:text="recommendationsText"
@@ -186,13 +186,13 @@ const committeeDecisionText = computed(() => {
         <div class="grid grid-cols-12 border border-gray-400 border-t-0">
             <!-- Decision Header -->
             <div
-                class="col-span-3 bg-gray-200 border border-gray-400 p-0.5 flex items-center justify-center font-bold text-xs h-12"
+                class="col-span-3 bg-gray-200 border border-gray-400 p-0.5 flex items-center justify-center font-bold text-sm min-h-12"
             >
                 قرار اللجنة
             </div>
             <!-- Decision Content -->
             <div
-                class="col-span-9 border border-gray-400 p-0.5 print:p-0.5 min-h-6 print:min-h-4 text-[10px] print:text-[8px] text-right h-12"
+                class="col-span-9 border border-gray-400 p-0.5 print:p-0.5 min-h-12 print:min-h-4 text-xs print:text-[10px] text-right"
             >
                 <EditablePara
                     :text="committeeDecisionText"
@@ -202,14 +202,14 @@ const committeeDecisionText = computed(() => {
 
             <!-- Committee Members Header -->
             <div
-                class="col-span-3 bg-gray-200 border border-gray-400 p-0.5 flex items-center justify-center font-bold text-xs"
+                class="col-span-3 bg-gray-200 border border-gray-400 p-0.5 flex items-center justify-center font-bold text-sm"
             >
                 اعضاء اللجنة
             </div>
 
             <!-- Committee Members Numbers (1-7) -->
             <div
-                class="col-span-7 border border-gray-400 p-0.5 print:p-1 grid grid-cols-4 gap-y-2 print:gap-y-1 text-xs font-bold text-center h-14"
+                class="col-span-7 border border-gray-400 p-0.5 print:p-1 grid grid-cols-4 gap-y-2 print:gap-y-1 text-sm font-bold text-center min-h-24"
             >
                 <div>{{ convertToHindi(1) }}-</div>
                 <div>{{ convertToHindi(2) }}-</div>
@@ -222,7 +222,7 @@ const committeeDecisionText = computed(() => {
 
             <!-- Committee Head Header -->
             <div
-                class="col-span-2 bg-gray-200 border border-gray-400 p-0.5 flex items-center justify-center font-bold text-xs"
+                class="col-span-2 bg-gray-200 border border-gray-400 p-0.5 flex  justify-center font-bold text-sm py-4"
             >
                 رئيس اللجنة
             </div>

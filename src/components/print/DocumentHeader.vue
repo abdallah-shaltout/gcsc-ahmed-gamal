@@ -32,7 +32,7 @@ defineProps<{
             <img
                 src="/papaer-logo.png"
                 alt="G.C.W.C"
-                class="h-12 print:h-5 w-auto print:max-w-5 object-contain"
+                class="h-16 print:h-5 w-auto print:max-w-5 object-contain"
             />
         </div>
         <div class="text-left flex-1" dir="ltr">
